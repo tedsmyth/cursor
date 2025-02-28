@@ -47,7 +47,7 @@ class Game {
             '#E74C3C', '#2ECC71'
         ];
         this.activeCursors = new Set();
-        this.totalButtons = 37;
+        this.totalButtons = 35; // Diamond pattern total
         this.setupGame();
         this.setupEventListeners();
         this.updateScoreboard();
@@ -55,27 +55,32 @@ class Game {
     }
 
     ensureCursorHidden() {
+        // Add global style to force cursor: none
+        const style = document.createElement('style');
+        style.textContent = `
+            * { cursor: none !important; }
+            *:hover { cursor: none !important; }
+        `;
+        document.head.appendChild(style);
+
         const hideCursor = () => {
             document.body.style.cursor = 'none';
-            document.querySelectorAll('button').forEach(btn => btn.style.cursor = 'none');
+            document.documentElement.style.cursor = 'none';
         };
 
         // Initial hide
         hideCursor();
 
-        // Hide on window focus
+        // Hide on various events
+        ['mousemove', 'mousedown', 'mouseup', 'click'].forEach(event => {
+            document.addEventListener(event, hideCursor, { capture: true });
+        });
+
+        // Hide on focus changes
         window.addEventListener('focus', hideCursor);
-
-        // Hide on mouse enter
-        document.body.addEventListener('mouseenter', hideCursor);
-
-        // Hide on visibility change
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) hideCursor();
         });
-
-        // Periodic check (every 1 second)
-        setInterval(hideCursor, 1000);
     }
 
     createScoreboard() {
@@ -105,17 +110,17 @@ class Game {
         const buttonGrid = document.querySelector('.button-grid');
         buttonGrid.innerHTML = '';
         
-        // Create symmetric pattern
-        const pattern = [4, 5, 6, 7, 6, 5, 4]; // 37 buttons total
+        // Create diamond pattern: 4-5-6-7-6-5-4
+        const pattern = [4, 5, 6, 7, 6, 5, 4];
         let buttonCount = 0;
 
         pattern.forEach((buttonsInRow, rowIndex) => {
             const rowDiv = document.createElement('div');
             rowDiv.className = 'button-row';
             
-            // Calculate offset for perfect centering
+            // Center each row
             const maxButtons = 7;
-            const offset = ((maxButtons - buttonsInRow) * 44) / 2; // 44px = button width + gap
+            const offset = ((maxButtons - buttonsInRow) * 44) / 2;
             rowDiv.style.transform = `translateX(${offset}px)`;
             
             for (let col = 0; col < buttonsInRow; col++) {
