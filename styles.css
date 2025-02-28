@@ -54,6 +54,7 @@ body {
     gap: 8px;
     padding: 20px;
     flex-grow: 1;
+    justify-content: center;
 }
 
 .button-row {
@@ -77,6 +78,7 @@ body {
     background: linear-gradient(to bottom, #f0f0f0, #d4d4d4);
     position: relative;
     box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    margin: 0;
 }
 
 .game-button:hover {

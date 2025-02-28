@@ -39,18 +39,33 @@ class Cursor {
 
 class Game {
     constructor() {
-        this.cursors = [new Cursor()]; // Start with one default cursor
+        this.cursors = [new Cursor()];
         this.buttons = [];
         this.colors = [
             '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', 
             '#FFEEAD', '#D4A5A5', '#9B59B6', '#3498DB',
             '#E74C3C', '#2ECC71'
         ];
-        this.activeCursors = new Set(); // Track which buttons have active cursors
-        this.totalButtons = 45; // Total number of buttons for hexagonal pattern
+        this.activeCursors = new Set();
+        this.totalButtons = 37;
         this.setupGame();
         this.setupEventListeners();
         this.updateScoreboard();
+        this.ensureCursorHidden();
+    }
+
+    ensureCursorHidden() {
+        // Force hide cursor on window focus and initial load
+        document.body.style.cursor = 'none';
+        window.addEventListener('focus', () => {
+            document.body.style.cursor = 'none';
+        });
+        
+        // Hide cursor when mouse enters the game container
+        const container = document.querySelector('.game-container');
+        container.addEventListener('mouseenter', () => {
+            document.body.style.cursor = 'none';
+        });
     }
 
     createScoreboard() {
@@ -78,15 +93,19 @@ class Game {
 
     setupGame() {
         const buttonGrid = document.querySelector('.button-grid');
-        buttonGrid.innerHTML = ''; // Clear existing buttons
+        buttonGrid.innerHTML = '';
         
-        // Create hexagonal pattern
-        const pattern = [7, 8, 9, 8, 7]; // Number of buttons per row
+        // Create symmetric pattern (more circular/square)
+        const pattern = [5, 6, 7, 7, 7, 6, 5]; // 43 buttons total, but we'll use 37
         let buttonCount = 0;
 
         pattern.forEach((buttonsInRow, rowIndex) => {
             const rowDiv = document.createElement('div');
-            rowDiv.className = `button-row ${rowIndex % 2 === 1 ? 'odd' : ''}`;
+            rowDiv.className = 'button-row';
+            
+            // Center each row
+            const offset = (8 - buttonsInRow) * 20; // 20px is half of button width
+            rowDiv.style.transform = `translateX(${offset}px)`;
             
             for (let col = 0; col < buttonsInRow; col++) {
                 if (buttonCount < this.totalButtons) {
