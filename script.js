@@ -5,7 +5,15 @@ class Cursor {
         this.element.style.filter = `hue-rotate(${Math.random() * 360}deg)`;
         this.offsetX = offsetX;
         this.offsetY = offsetY;
+        this.initialX = 0;
+        this.initialY = 0;
         document.body.appendChild(this.element);
+    }
+
+    setInitialPosition(x, y) {
+        this.initialX = x + this.offsetX;
+        this.initialY = y + this.offsetY;
+        this.update(x, y);
     }
 
     update(x, y) {
@@ -39,22 +47,57 @@ class Game {
             '#E74C3C', '#2ECC71'
         ];
         this.activeCursors = new Set(); // Track which buttons have active cursors
+        this.totalButtons = 45; // Total number of buttons for hexagonal pattern
         this.setupGame();
         this.setupEventListeners();
+        this.updateScoreboard();
+    }
+
+    createScoreboard() {
+        const scoreboard = document.createElement('div');
+        scoreboard.className = 'scoreboard';
+        const container = document.querySelector('.game-container');
+        container.insertBefore(scoreboard, container.firstChild);
+        this.updateScoreboard();
+    }
+
+    updateScoreboard() {
+        const scoreboard = document.querySelector('.scoreboard');
+        if (scoreboard) {
+            const remainingButtons = this.totalButtons - this.activeCursors.size;
+            scoreboard.textContent = remainingButtons.toString().padStart(2, '0');
+        }
     }
 
     setupGame() {
         const buttonGrid = document.querySelector('.button-grid');
+        buttonGrid.innerHTML = ''; // Clear existing buttons
         
-        // Create 10 buttons with different colors
-        for (let i = 0; i < 10; i++) {
-            const button = document.createElement('button');
-            button.className = 'game-button';
-            button.style.backgroundColor = this.colors[i];
-            button.dataset.index = i;
-            this.buttons.push(button);
-            buttonGrid.appendChild(button);
+        // Create rows for hexagonal pattern
+        const rows = 5;
+        const buttonsPerRow = 9;
+        let buttonCount = 0;
+
+        for (let row = 0; row < rows; row++) {
+            const rowDiv = document.createElement('div');
+            rowDiv.style.transform = `translateX(${row % 2 ? '18px' : '0'})`;
+            
+            for (let col = 0; col < buttonsPerRow; col++) {
+                if (buttonCount < this.totalButtons) {
+                    const button = document.createElement('button');
+                    button.className = 'game-button';
+                    button.style.backgroundColor = this.colors[buttonCount % this.colors.length];
+                    button.dataset.index = buttonCount;
+                    this.buttons.push(button);
+                    rowDiv.appendChild(button);
+                    buttonCount++;
+                }
+            }
+            
+            buttonGrid.appendChild(rowDiv);
         }
+
+        this.createScoreboard();
     }
 
     setupEventListeners() {
@@ -75,12 +118,15 @@ class Game {
                     this.activeCursors.delete(index);
                 } else {
                     // Add a new cursor with random offset
-                    const offsetX = (Math.random() - 0.5) * 300; // Random offset between -150 and 150
+                    const offsetX = (Math.random() - 0.5) * 300;
                     const offsetY = (Math.random() - 0.5) * 300;
-                    this.cursors.push(new Cursor(this.colors[index], offsetX, offsetY));
+                    const newCursor = new Cursor(this.colors[index], offsetX, offsetY);
+                    newCursor.setInitialPosition(e.clientX, e.clientY);
+                    this.cursors.push(newCursor);
                     button.classList.add('clicked');
                     this.activeCursors.add(index);
                 }
+                this.updateScoreboard();
             });
         });
     }
