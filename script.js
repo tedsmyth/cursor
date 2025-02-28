@@ -55,17 +55,27 @@ class Game {
     }
 
     ensureCursorHidden() {
-        // Force hide cursor on window focus and initial load
-        document.body.style.cursor = 'none';
-        window.addEventListener('focus', () => {
+        const hideCursor = () => {
             document.body.style.cursor = 'none';
+            document.querySelectorAll('button').forEach(btn => btn.style.cursor = 'none');
+        };
+
+        // Initial hide
+        hideCursor();
+
+        // Hide on window focus
+        window.addEventListener('focus', hideCursor);
+
+        // Hide on mouse enter
+        document.body.addEventListener('mouseenter', hideCursor);
+
+        // Hide on visibility change
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) hideCursor();
         });
-        
-        // Hide cursor when mouse enters the game container
-        const container = document.querySelector('.game-container');
-        container.addEventListener('mouseenter', () => {
-            document.body.style.cursor = 'none';
-        });
+
+        // Periodic check (every 1 second)
+        setInterval(hideCursor, 1000);
     }
 
     createScoreboard() {
@@ -95,16 +105,17 @@ class Game {
         const buttonGrid = document.querySelector('.button-grid');
         buttonGrid.innerHTML = '';
         
-        // Create symmetric pattern (more circular/square)
-        const pattern = [5, 6, 7, 7, 7, 6, 5]; // 43 buttons total, but we'll use 37
+        // Create symmetric pattern
+        const pattern = [4, 5, 6, 7, 6, 5, 4]; // 37 buttons total
         let buttonCount = 0;
 
         pattern.forEach((buttonsInRow, rowIndex) => {
             const rowDiv = document.createElement('div');
             rowDiv.className = 'button-row';
             
-            // Center each row
-            const offset = (8 - buttonsInRow) * 20; // 20px is half of button width
+            // Calculate offset for perfect centering
+            const maxButtons = 7;
+            const offset = ((maxButtons - buttonsInRow) * 44) / 2; // 44px = button width + gap
             rowDiv.style.transform = `translateX(${offset}px)`;
             
             for (let col = 0; col < buttonsInRow; col++) {
