@@ -65,7 +65,14 @@ class Game {
         const scoreboard = document.querySelector('.scoreboard');
         if (scoreboard) {
             const remainingButtons = this.totalButtons - this.activeCursors.size;
-            scoreboard.textContent = remainingButtons.toString().padStart(2, '0');
+            scoreboard.textContent = remainingButtons === 0 ? 'WINNER' : 
+                remainingButtons.toString().padStart(2, '0');
+            
+            if (remainingButtons === 0) {
+                scoreboard.classList.add('winner');
+            } else {
+                scoreboard.classList.remove('winner');
+            }
         }
     }
 
@@ -73,16 +80,15 @@ class Game {
         const buttonGrid = document.querySelector('.button-grid');
         buttonGrid.innerHTML = ''; // Clear existing buttons
         
-        // Create rows for hexagonal pattern
-        const rows = 5;
-        const buttonsPerRow = 9;
+        // Create hexagonal pattern
+        const pattern = [7, 8, 9, 8, 7]; // Number of buttons per row
         let buttonCount = 0;
 
-        for (let row = 0; row < rows; row++) {
+        pattern.forEach((buttonsInRow, rowIndex) => {
             const rowDiv = document.createElement('div');
-            rowDiv.style.transform = `translateX(${row % 2 ? '18px' : '0'})`;
+            rowDiv.className = `button-row ${rowIndex % 2 === 1 ? 'odd' : ''}`;
             
-            for (let col = 0; col < buttonsPerRow; col++) {
+            for (let col = 0; col < buttonsInRow; col++) {
                 if (buttonCount < this.totalButtons) {
                     const button = document.createElement('button');
                     button.className = 'game-button';
@@ -95,7 +101,7 @@ class Game {
             }
             
             buttonGrid.appendChild(rowDiv);
-        }
+        });
 
         this.createScoreboard();
     }

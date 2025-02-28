@@ -37,27 +37,38 @@ body {
     padding: 10px;
     border-radius: 4px;
     text-shadow: 0 0 10px rgba(255, 51, 51, 0.5);
+    transition: all 0.3s ease;
+}
+
+.scoreboard.winner {
+    color: #00FF00;
+    text-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
+    transform: scale(1.1);
+    letter-spacing: 2px;
 }
 
 .button-grid {
-    display: grid;
-    grid-template-columns: repeat(9, 1fr);
-    gap: 12px;
-    padding: 20px;
-    justify-items: center;
+    display: flex;
+    flex-direction: column;
     align-items: center;
+    gap: 8px;
+    padding: 20px;
+    flex-grow: 1;
 }
 
-.button-grid > div {
-    /* For offsetting even rows in hexagonal pattern */
+.button-row {
     display: flex;
-    justify-content: center;
-    width: 100%;
+    gap: 8px;
+    height: 40px;
+}
+
+.button-row.odd {
+    transform: translateX(24px);
 }
 
 .game-button {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border: 2px outset #CCC;
     border-radius: 4px;
     cursor: none;
